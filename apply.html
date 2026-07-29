@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>프로그램 신청</title>
+<style>
+  :root{
+    --bg:#f5f6f8; --card:#ffffff; --ink:#16181d; --sub:#6b7280; --line:#e5e7eb;
+    --brand:#1f3864; --brand-soft:#eef2fa; --ok:#0f9d58; --warn:#c0392b;
+    --radius:14px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--bg); color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic","맑은 고딕",Roboto,"Helvetica Neue",sans-serif;
+    -webkit-text-size-adjust:100%; line-height:1.6;
+  }
+  .wrap{max-width:560px;margin:0 auto;padding:16px 14px 64px}
+  .wrap.admin{max-width:720px}
+
+  /* ---------- shared ---------- */
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:18px;margin-bottom:14px}
+  h1{font-size:22px;line-height:1.35;margin:0 0 6px}
+  h2{font-size:16px;margin:0 0 12px;color:var(--brand)}
+  label{display:block;font-size:13px;font-weight:600;color:#374151;margin:0 0 5px}
+  .hint{font-size:12px;color:var(--sub);font-weight:400;margin-top:4px}
+  input[type=text],input[type=tel],input[type=email],input[type=number],input[type=date],textarea,select{
+    width:100%;padding:11px 12px;border:1px solid #d3d7de;border-radius:10px;
+    font-size:15px;font-family:inherit;background:#fff;color:var(--ink);
+  }
+  input:focus,textarea:focus,select:focus{outline:none;border-color:var(--brand);box-shadow:0 0 0 3px rgba(31,56,100,.10)}
+  textarea{min-height:110px;resize:vertical;line-height:1.6}
+  .field{margin-bottom:14px}
+  .row{display:flex;gap:10px}
+  .row>*{flex:1;min-width:0}
+  button{
+    font-family:inherit;font-size:15px;font-weight:700;cursor:pointer;
+    border:none;border-radius:10px;padding:13px 18px;
+  }
+  .btn{background:var(--brand);color:#fff;width:100%}
+  .btn:active{opacity:.85}
+  .btn.ghost{background:#fff;color:var(--brand);border:1px solid var(--brand)}
+  .btn.sm{width:auto;padding:9px 14px;font-size:13px}
+  .btn:disabled{opacity:.45;cursor:not-allowed}
+  .muted{color:var(--sub);font-size:13px}
+  .err{color:var(--warn);font-size:13px;margin-top:6px;display:none}
+  .err.on{display:block}
+
+  /* ---------- applicant view ---------- */
+  .cover{background:var(--brand);color:#fff;border-radius:var(--radius);padding:26px 20px;margin-bottom:14px}
+  .badge{display:inline-block;background:rgba(255,255,255,.18);border-radius:999px;padding:4px 11px;font-size:12px;font-weight:700;margin-bottom:10px}
+  .cover h1{color:#fff;font-size:24px;margin-bottom:8px}
+  .cover p{margin:0;opacity:.9;font-size:15px}
+  .facts{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:14px}
+  .fact{background:#fff;padding:13px 14px}
+  .fact .k{font-size:11px;color:var(--sub);font-weight:700;letter-spacing:.02em}
+  .fact .v{font-size:15px;font-weight:700;margin-top:3px}
+  .desc{white-space:pre-wrap;font-size:15px;color:#2b2f38}
+  .closed{background:#fdecea;border:1px solid #f5c6c0;color:#a2342a;border-radius:var(--radius);padding:14px;text-align:center;font-weight:700;margin-bottom:14px}
+  .statusbar{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;margin-bottom:14px}
+  .statusbar .top{display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:14px}
+  .statusbar .n{font-weight:800;color:var(--brand);font-size:16px}
+  .statusbar .left{color:var(--sub);font-size:13px;font-weight:600}
+  .bar{height:7px;background:#eceef2;border-radius:99px;margin-top:10px;overflow:hidden}
+  .bar>i{display:block;height:100%;background:var(--brand);border-radius:99px;transition:width .5s ease}
+  .statusbar.full .n{color:var(--warn)}
+  .statusbar.full .bar>i{background:var(--warn)}
+  .countbox{background:#0f172a;color:#e2e8f0;border-radius:12px;padding:16px;margin-top:12px}
+  .countbox .big{font-size:30px;font-weight:800;color:#7dd3a0;line-height:1.2}
+  .countbox .sub{font-size:13px;color:#94a3b8;margin-top:4px}
+  .req::after{content:" *";color:#d0342c}
+  .agree{display:flex;gap:9px;align-items:flex-start;font-size:13px;color:#374151;font-weight:400;line-height:1.5}
+  .agree input{margin-top:3px;width:17px;height:17px;flex:none}
+  .done{text-align:center;padding:8px 4px}
+  .done .mark{font-size:44px;line-height:1;margin-bottom:10px}
+  .paybox{background:var(--brand-soft);border:1px solid #ccd6ea;border-radius:12px;padding:16px;text-align:left;margin-top:16px}
+  .paybox .amt{font-size:24px;font-weight:800;color:var(--brand);margin:2px 0 12px}
+  .payline{display:flex;justify-content:space-between;gap:10px;font-size:14px;padding:5px 0;border-top:1px solid #dbe2f0}
+  .payline .k{color:var(--sub);flex:none}
+  .payline .v{font-weight:700;text-align:right;word-break:break-all}
+  .stress{background:#fff6da;border:1px solid #f0dfa8;border-radius:10px;padding:11px 13px;font-size:13px;margin-top:12px;line-height:1.55}
+
+  /* ---------- admin ---------- */
+  .tabs{display:flex;gap:6px;margin-bottom:14px}
+  .tab{flex:1;text-align:center;padding:11px;border-radius:10px;background:#fff;border:1px solid var(--line);font-size:14px;font-weight:700;color:var(--sub);cursor:pointer}
+  .tab.on{background:var(--brand);color:#fff;border-color:var(--brand)}
+  .sec{border-top:1px solid var(--line);margin-top:20px;padding-top:18px}
+  .sec:first-of-type{border-top:none;margin-top:0;padding-top:0}
+  .chk{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:500;color:#374151;padding:7px 0}
+  .chk input{width:17px;height:17px}
+  .qrow{display:flex;gap:8px;align-items:center;margin-bottom:8px}
+  .qrow input{flex:1}
+  .qrow button{background:#eef0f4;color:#6b7280;padding:10px 12px;font-size:13px}
+  .linkout{background:#0f172a;color:#a5f3c8;border-radius:10px;padding:13px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;word-break:break-all;max-height:130px;overflow:auto;line-height:1.5}
+  .pill{display:inline-block;background:var(--brand-soft);color:var(--brand);border-radius:999px;padding:3px 10px;font-size:12px;font-weight:700}
+  .note{font-size:13px;color:var(--sub);line-height:1.6}
+  .foot{text-align:center;font-size:12px;color:#9aa1ad;margin-top:22px}
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+/* ============================================================
+   기수제 프로그램 신청 폼 — MVP v0.1
+   · 서버 없음. 프로그램 정보는 링크(#d=)에 인코딩되어 담긴다.
+   · 신청자는 가입 없이 링크만 열면 된다.
+   · 신청 데이터는 Google Apps Script 웹훅으로 전송된다.
+   ============================================================ */
+
+/* 운영자 화면의 웹훅 칸에 기본으로 채워질 값 */
+const DEFAULT_WEBHOOK = 'https://script.google.com/macros/s/AKfycbz2OoueBliLcBroZ5UTrIX_64eXV0D5R59SQQ_JdD55iSsntj0m7ymo-FEMQK-poTuN/exec';
+
+/* ---------- utils ---------- */
+const $ = (s, r=document) => r.querySelector(s);
+const esc = s => String(s==null?'':s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const won = n => Number(n||0).toLocaleString('ko-KR');
+
+function encodeCfg(obj){
+  const bytes = new TextEncoder().encode(JSON.stringify(obj));
+  let bin = ''; bytes.forEach(b => bin += String.fromCharCode(b));
+  return btoa(bin).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+}
+function decodeCfg(str){
+  str = str.replace(/-/g,'+').replace(/_/g,'/');
+  const bin = atob(str);
+  const bytes = new Uint8Array(bin.length);
+  for(let i=0;i<bin.length;i++) bytes[i] = bin.charCodeAt(i);
+  return JSON.parse(new TextDecoder().decode(bytes));
+}
+function fmtDate(d){
+  if(!d) return '';
+  const [y,m,dd] = d.split('-');
+  return `${Number(m)}월 ${Number(dd)}일`;
+}
+function isClosed(cfg){
+  if(!cfg.deadline) return false;
+  const end = new Date(cfg.deadline + 'T23:59:59');
+  return new Date() > end;
+}
+
+/* JSONP — Apps Script 는 fetch 로 응답을 읽기 어려워 script 태그로 받는다 */
+function jsonp(url, params, timeout=8000){
+  return new Promise((resolve, reject) => {
+    const cb = 'cb_' + Math.random().toString(36).slice(2);
+    const s = document.createElement('script');
+    const t = setTimeout(() => { cleanup(); reject(new Error('timeout')); }, timeout);
+    function cleanup(){ clearTimeout(t); try{ delete window[cb]; }catch(_){ window[cb] = undefined; } s.remove(); }
+    window[cb] = data => { cleanup(); resolve(data); };
+    s.onerror = () => { cleanup(); reject(new Error('network')); };
+    const q = new URLSearchParams(Object.assign({}, params, {callback: cb}));
+    s.src = url + (url.includes('?') ? '&' : '?') + q.toString();
+    document.body.appendChild(s);
+  });
+}
+
+function fetchCount(cfg){
+  if(!cfg.webhook) return Promise.reject(new Error('no webhook'));
+  return jsonp(cfg.webhook, { action:'count', program: cfg.title||'', cohort: cfg.cohort||'' });
+}
+
+/* ============================================================
+   신청자 화면
+   ============================================================ */
+function renderApplicant(cfg){
+  const closed = isClosed(cfg);
+  const facts = [];
+  if(cfg.startDate) facts.push(['진행 기간', fmtDate(cfg.startDate) + (cfg.endDate ? ' ~ ' + fmtDate(cfg.endDate) : '')]);
+  if(cfg.deadline)  facts.push(['모집 마감', fmtDate(cfg.deadline)]);
+  if(cfg.capacity)  facts.push(['정원', cfg.capacity + '명']);
+  facts.push(['참가비', Number(cfg.fee) > 0 ? won(cfg.fee) + '원' : '무료']);
+  if(cfg.mode)      facts.push(['진행 방식', cfg.mode]);
+  if(cfg.place)     facts.push(['장소', cfg.place]);
+
+  const fields = [];
+  fields.push({key:'name',  label:'이름',   type:'text', req:true,  ph:'홍길동'});
+  fields.push({key:'phone', label:'연락처', type:'tel',  req:true,  ph:'010-0000-0000'});
+  if(cfg.askEmail)  fields.push({key:'email', label:'이메일',   type:'email', req:true, ph:'name@example.com'});
+  if(cfg.askOrg)    fields.push({key:'org',   label:'소속 / 하는 일', type:'text', req:false, ph:''});
+  if(cfg.askSns)    fields.push({key:'sns',   label:'SNS / 링크',    type:'text', req:false, ph:''});
+  (cfg.questions||[]).forEach((q,i) => {
+    if(q && q.trim()) fields.push({key:'q'+i, label:q.trim(), type:'textarea', req:false, ph:''});
+  });
+
+  const app = $('#app');
+  app.innerHTML = `
+  <div class="wrap">
+    <div class="cover">
+      ${cfg.cohort ? `<div class="badge">${esc(cfg.cohort)}기 모집</div>` : ''}
+      <h1>${esc(cfg.title||'프로그램 신청')}</h1>
+      ${cfg.tagline ? `<p>${esc(cfg.tagline)}</p>` : ''}
+    </div>
+
+    ${closed ? `<div class="closed">모집이 마감되었습니다</div>` : ''}
+
+    <div class="statusbar" id="statusBar" style="display:none"></div>
+
+    <div class="facts">
+      ${facts.map(([k,v]) => `<div class="fact"><div class="k">${esc(k)}</div><div class="v">${esc(v)}</div></div>`).join('')}
+    </div>
+
+    ${cfg.desc ? `<div class="card"><div class="desc">${esc(cfg.desc)}</div></div>` : ''}
+
+    <div class="card" id="formCard" ${closed?'style="display:none"':''}>
+      <h2>신청하기</h2>
+      <form id="applyForm" novalidate>
+        ${fields.map(f => `
+          <div class="field">
+            <label class="${f.req?'req':''}" for="f_${f.key}">${esc(f.label)}</label>
+            ${f.type==='textarea'
+              ? `<textarea id="f_${f.key}" name="${f.key}" ${f.req?'required':''} placeholder="${esc(f.ph)}"></textarea>`
+              : `<input type="${f.type}" id="f_${f.key}" name="${f.key}" ${f.req?'required':''} placeholder="${esc(f.ph)}">`}
+          </div>`).join('')}
+
+        <div class="field">
+          <label class="agree">
+            <input type="checkbox" id="agree" required>
+            <span>신청 확인 및 안내를 위해 위 정보를 수집하는 데 동의합니다. 수집한 정보는 본 프로그램 운영 목적으로만 사용되며 종료 후 파기됩니다.</span>
+          </label>
+        </div>
+
+        <div class="err" id="formErr"></div>
+        <button type="submit" class="btn" id="submitBtn">신청 접수하기</button>
+        <div class="hint" style="text-align:center;margin-top:10px">별도 가입 없이 바로 접수됩니다</div>
+      </form>
+    </div>
+
+    <div class="foot">${esc(cfg.host||'')}</div>
+  </div>`;
+
+  if(closed) return;
+
+  // ── 신청자 수 표시 ────────────────────────────────
+  // 숫자가 적을 때 노출하면 오히려 신청을 막는다. 기준치를 넘겨야 공개한다.
+  if(cfg.showCount && cfg.webhook){
+    const minShow = Number(cfg.minCount || 5);
+    const cap = Number(cfg.capacity || 0);
+    fetchCount(cfg).then(r => {
+      if(!r || !r.ok) return;
+      const n = Number(r.count || 0);
+      const bar = $('#statusBar');
+      if(!bar) return;
+
+      if(cap && n >= cap){
+        bar.className = 'statusbar full';
+        bar.innerHTML = `<div class="top"><span>모집 현황</span><span class="n">정원 마감</span></div>
+          <div class="bar"><i style="width:100%"></i></div>
+          <div class="left" style="margin-top:8px">정원 ${cap}명이 모두 찼습니다. 신청하시면 대기 명단으로 접수됩니다.</div>`;
+        bar.style.display = 'block';
+        const b = $('#submitBtn'); if(b) b.textContent = '대기 명단으로 신청하기';
+        return;
+      }
+      if(n < minShow) return;   // 아직 적으면 조용히 숨긴다
+
+      bar.className = 'statusbar';
+      bar.innerHTML = `<div class="top"><span>지금까지 <b class="n">${n}명</b>이 신청했습니다</span>
+        ${cap ? `<span class="left">${cap - n}자리 남음</span>` : ''}</div>
+        ${cap ? `<div class="bar"><i style="width:${Math.min(100, Math.round(n/cap*100))}%"></i></div>` : ''}`;
+      bar.style.display = 'block';
+    }).catch(()=>{ /* 조회 실패해도 신청은 그대로 가능해야 한다 */ });
+  }
+
+  $('#applyForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const err = $('#formErr');
+    err.classList.remove('on');
+
+    const data = {};
+    for(const f of fields){
+      const el = $('#f_' + f.key);
+      const v = (el.value||'').trim();
+      if(f.req && !v){ err.textContent = `'${f.label}' 항목을 입력해 주세요.`; err.classList.add('on'); el.focus(); return; }
+      data[f.label] = v;
+    }
+    if(!$('#agree').checked){ err.textContent = '개인정보 수집에 동의해 주세요.'; err.classList.add('on'); return; }
+
+    const btn = $('#submitBtn');
+    btn.disabled = true; btn.textContent = '접수 중...';
+
+    const payload = {
+      submittedAt: new Date().toISOString(),
+      program: cfg.title || '',
+      cohort: cfg.cohort || '',
+      fee: cfg.fee || 0,
+      answers: data
+    };
+
+    try{
+      if(cfg.webhook){
+        await fetch(cfg.webhook, {
+          method:'POST', mode:'no-cors',
+          headers:{'Content-Type':'text/plain;charset=utf-8'},
+          body: JSON.stringify(payload)
+        });
+      }
+    }catch(_){ /* no-cors 는 응답을 읽지 못한다. 전송 자체는 진행된다. */ }
+
+    renderDone(cfg, data['이름'] || '');
+  });
+}
+
+/* ---------- 접수 완료 + 입금 안내 ---------- */
+function renderDone(cfg, name){
+  const fee = Number(cfg.fee||0);
+  const app = $('#app');
+  app.innerHTML = `
+  <div class="wrap">
+    <div class="card done">
+      <div class="mark">✓</div>
+      <h1 style="font-size:20px">신청이 접수되었습니다</h1>
+      <p class="muted" style="margin:6px 0 0">${esc(cfg.title||'')}${cfg.cohort?` ${esc(cfg.cohort)}기`:''}</p>
+
+      ${fee > 0 ? `
+      <div class="paybox">
+        <div class="muted" style="font-size:12px;font-weight:700">입금하실 금액</div>
+        <div class="amt">${won(fee)}원</div>
+        ${cfg.bank ? `<div class="payline"><span class="k">은행</span><span class="v">${esc(cfg.bank)}</span></div>` : ''}
+        ${cfg.account ? `<div class="payline"><span class="k">계좌번호</span><span class="v">${esc(cfg.account)}</span></div>` : ''}
+        ${cfg.holder ? `<div class="payline"><span class="k">예금주</span><span class="v">${esc(cfg.holder)}</span></div>` : ''}
+        <div class="payline"><span class="k">입금자명</span><span class="v">${esc(name||'신청자 본인 이름')}</span></div>
+        <div class="stress"><b>입금자명을 반드시 '${esc(name||'신청하신 이름')}'으로 해주세요.</b><br>이름이 다르면 입금 확인이 늦어지고, 정원이 마감될 경우 자리가 보장되지 않습니다.</div>
+        ${cfg.account ? `<button class="btn ghost sm" style="width:100%;margin-top:12px" id="copyAcc">계좌번호 복사</button>` : ''}
+      </div>` : `
+      <div class="paybox"><div class="muted">참가비가 없는 프로그램입니다. 안내는 입력하신 연락처로 발송됩니다.</div></div>`}
+
+      <p class="muted" style="margin-top:16px;font-size:13px">확인 후 안내 드리겠습니다.<br>${esc(cfg.host||'')}</p>
+    </div>
+  </div>`;
+
+  const cp = $('#copyAcc');
+  if(cp) cp.addEventListener('click', () => {
+    navigator.clipboard.writeText(String(cfg.account||'')).then(()=>{
+      cp.textContent = '복사되었습니다'; setTimeout(()=>cp.textContent='계좌번호 복사', 1600);
+    });
+  });
+}
+
+/* ============================================================
+   운영자 화면
+   ============================================================ */
+const DRAFT_KEY = 'applyMvpDraft';
+
+function renderAdmin(){
+  const d = (()=>{ try{ return JSON.parse(localStorage.getItem(DRAFT_KEY)||'{}'); }catch(_){ return {}; } })();
+  const v = (k, fb='') => esc(d[k] != null ? d[k] : fb);
+  const ck = k => d[k] ? 'checked' : '';
+  const q = i => esc((d.questions||[])[i] || '');
+
+  $('#app').innerHTML = `
+  <div class="wrap admin">
+    <div class="card">
+      <span class="pill">운영자 화면</span>
+      <h1 style="margin-top:10px">신청 페이지 만들기</h1>
+      <p class="muted" style="margin:0">아래를 채우면 링크가 하나 나옵니다. 그 링크를 카톡·인스타에 그대로 뿌리면 끝입니다. 신청자는 가입하지 않습니다.</p>
+    </div>
+
+    <div class="card">
+      <div class="sec">
+        <h2>1. 프로그램 정보</h2>
+        <div class="field"><label class="req">프로그램 이름</label>
+          <input type="text" id="title" value="${v('title')}" placeholder="예: 새벽 글쓰기 챌린지"></div>
+        <div class="row">
+          <div class="field"><label>기수</label>
+            <input type="number" id="cohort" value="${v('cohort')}" placeholder="3">
+            <div class="hint">숫자만. 비우면 표시 안 됨</div></div>
+          <div class="field"><label>운영자 / 주최</label>
+            <input type="text" id="host" value="${v('host')}" placeholder="예: 김운영"></div>
+        </div>
+        <div class="field"><label>한 줄 소개</label>
+          <input type="text" id="tagline" value="${v('tagline')}" placeholder="4주 동안 매일 아침 6시, 같이 씁니다"></div>
+        <div class="field"><label>상세 소개</label>
+          <textarea id="desc" placeholder="누구를 위한 프로그램인지, 무엇을 하는지, 무엇을 얻어가는지">${v('desc')}</textarea>
+          <div class="hint">줄바꿈은 그대로 유지됩니다</div></div>
+      </div>
+
+      <div class="sec">
+        <h2>2. 일정과 모집 조건</h2>
+        <div class="row">
+          <div class="field"><label>시작일</label><input type="date" id="startDate" value="${v('startDate')}"></div>
+          <div class="field"><label>종료일</label><input type="date" id="endDate" value="${v('endDate')}"></div>
+        </div>
+        <div class="row">
+          <div class="field"><label>모집 마감일</label><input type="date" id="deadline" value="${v('deadline')}">
+            <div class="hint">지나면 자동으로 마감 표시</div></div>
+          <div class="field"><label>정원</label><input type="number" id="capacity" value="${v('capacity')}" placeholder="20"></div>
+        </div>
+        <div class="row">
+          <div class="field"><label>진행 방식</label>
+            <select id="mode">
+              ${['온라인','오프라인','온·오프라인 혼합'].map(m=>`<option ${d.mode===m?'selected':''}>${m}</option>`).join('')}
+            </select></div>
+          <div class="field"><label>장소 / 플랫폼</label>
+            <input type="text" id="place" value="${v('place')}" placeholder="예: 줌, 성수동"></div>
+        </div>
+      </div>
+
+      <div class="sec">
+        <h2>3. 참가비와 입금 계좌</h2>
+        <div class="field"><label>참가비 (원)</label>
+          <input type="number" id="fee" value="${v('fee')}" placeholder="150000">
+          <div class="hint">0 또는 비워두면 무료 프로그램으로 표시됩니다</div></div>
+        <div class="row">
+          <div class="field"><label>은행</label><input type="text" id="bank" value="${v('bank')}" placeholder="카카오뱅크"></div>
+          <div class="field"><label>예금주</label><input type="text" id="holder" value="${v('holder')}" placeholder="김운영"></div>
+        </div>
+        <div class="field"><label>계좌번호</label>
+          <input type="text" id="account" value="${v('account')}" placeholder="3333-00-0000000">
+          <div class="hint">접수 완료 화면에서 <b>입금자명을 신청자 이름으로 맞추도록</b> 안내합니다. 입금 대조가 어긋나는 원인의 대부분이 여기서 해결됩니다</div></div>
+      </div>
+
+      <div class="sec">
+        <h2>4. 받을 정보</h2>
+        <p class="note" style="margin-top:-4px">이름과 연락처는 항상 받습니다. 항목이 많을수록 신청 이탈이 늘어나니 꼭 필요한 것만 켜세요.</p>
+        <label class="chk"><input type="checkbox" id="askEmail" ${ck('askEmail')}> 이메일</label>
+        <label class="chk"><input type="checkbox" id="askOrg" ${ck('askOrg')}> 소속 / 하는 일</label>
+        <label class="chk"><input type="checkbox" id="askSns" ${ck('askSns')}> SNS / 링크</label>
+        <div class="field" style="margin-top:12px"><label>추가 질문 (최대 3개)</label>
+          <div class="qrow"><input type="text" id="q0" value="${q(0)}" placeholder="예: 이 프로그램에서 이루고 싶은 것은?"></div>
+          <div class="qrow"><input type="text" id="q1" value="${q(1)}" placeholder=""></div>
+          <div class="qrow"><input type="text" id="q2" value="${q(2)}" placeholder=""></div>
+        </div>
+      </div>
+
+      <div class="sec">
+        <h2>5. 신청서 받을 곳</h2>
+        <div class="field"><label>Google Apps Script 웹훅 URL</label>
+          <input type="text" id="webhook" value="${v('webhook', DEFAULT_WEBHOOK)}" placeholder="https://script.google.com/macros/s/.../exec">
+          <div class="hint">함께 드린 <b>google-apps-script.gs</b>를 구글 스프레드시트에 붙여넣고 배포하면 5분 안에 생성됩니다. 비워두면 신청서가 저장되지 않습니다</div></div>
+      </div>
+
+      <div class="sec">
+        <h2>6. 신청 현황 공개</h2>
+        <label class="chk"><input type="checkbox" id="showCount" ${d.showCount===false?'':'checked'}> 신청 페이지에 신청자 수를 표시한다</label>
+        <div class="field" style="margin-top:10px"><label>몇 명부터 공개할지</label>
+          <input type="number" id="minCount" value="${v('minCount','5')}" placeholder="5">
+          <div class="hint">신청자가 적을 때 숫자를 보여주면 오히려 신청을 막습니다. 이 인원을 넘길 때까지는 자동으로 숨겨지고, 정원이 차면 '정원 마감'과 대기 신청으로 바뀝니다</div></div>
+      </div>
+
+      <div class="err" id="adminErr"></div>
+      <button class="btn" id="makeLink" style="margin-top:6px">신청 링크 만들기</button>
+    </div>
+
+    <div class="card" id="out" style="display:none">
+      <h2>완성된 신청 링크</h2>
+      <div class="linkout" id="linkText"></div>
+      <div class="row" style="margin-top:12px">
+        <button class="btn sm" id="copyLink" style="flex:1">링크 복사</button>
+        <button class="btn ghost sm" id="preview" style="flex:1">신청자 화면 미리보기</button>
+      </div>
+
+      <div class="countbox">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px">
+          <div>
+            <div class="big" id="cNum">—</div>
+            <div class="sub" id="cSub">아래 버튼을 눌러 현재 신청자 수를 확인하세요</div>
+          </div>
+          <button class="btn sm" id="refreshCount" style="background:#334155">현황 조회</button>
+        </div>
+      </div>
+      <p class="note" style="margin-top:14px">이 링크 안에 프로그램 정보가 통째로 들어 있어 서버가 필요 없습니다. 그래서 링크가 깁니다 — 카톡·인스타에서는 문제없이 열리고, 짧은 주소가 필요하면 단축 URL을 쓰거나 다음 단계에서 서버를 붙이면 됩니다.</p>
+    </div>
+
+    <div class="foot">기수제 프로그램 신청 폼 MVP v0.1</div>
+  </div>`;
+
+  $('#makeLink').addEventListener('click', () => {
+    const cfg = {
+      title: $('#title').value.trim(),
+      cohort: $('#cohort').value.trim(),
+      host: $('#host').value.trim(),
+      tagline: $('#tagline').value.trim(),
+      desc: $('#desc').value,
+      startDate: $('#startDate').value,
+      endDate: $('#endDate').value,
+      deadline: $('#deadline').value,
+      capacity: $('#capacity').value.trim(),
+      mode: $('#mode').value,
+      place: $('#place').value.trim(),
+      fee: $('#fee').value.trim(),
+      bank: $('#bank').value.trim(),
+      holder: $('#holder').value.trim(),
+      account: $('#account').value.trim(),
+      askEmail: $('#askEmail').checked,
+      askOrg: $('#askOrg').checked,
+      askSns: $('#askSns').checked,
+      questions: [$('#q0').value, $('#q1').value, $('#q2').value].filter(x => x.trim()),
+      webhook: $('#webhook').value.trim(),
+      showCount: $('#showCount').checked,
+      minCount: $('#minCount').value.trim() || '5'
+    };
+
+    const err = $('#adminErr');
+    if(!cfg.title){ err.textContent = '프로그램 이름은 반드시 입력해야 합니다.'; err.classList.add('on'); $('#title').focus(); return; }
+    err.classList.remove('on');
+    localStorage.setItem(DRAFT_KEY, JSON.stringify(cfg));
+
+    const base = location.href.split('#')[0];
+    const link = base + '#d=' + encodeCfg(cfg);
+    $('#linkText').textContent = link;
+    $('#out').style.display = 'block';
+    $('#out').scrollIntoView({behavior:'smooth', block:'start'});
+
+    $('#copyLink').onclick = () => {
+      navigator.clipboard.writeText(link).then(()=>{
+        $('#copyLink').textContent = '복사되었습니다';
+        setTimeout(()=>$('#copyLink').textContent='링크 복사', 1600);
+      });
+    };
+    $('#preview').onclick = () => { location.hash = 'd=' + encodeCfg(cfg); route(); window.scrollTo(0,0); };
+
+    const doCount = () => {
+      const numEl = $('#cNum'), subEl = $('#cSub'), btn = $('#refreshCount');
+      if(!cfg.webhook){ numEl.textContent = '—'; subEl.textContent = '웹훅 URL을 먼저 연결해야 조회할 수 있습니다'; return; }
+      btn.disabled = true; btn.textContent = '조회 중';
+      fetchCount(cfg).then(r => {
+        const n = Number((r && r.count) || 0);
+        const paid = Number((r && r.paid) || 0);
+        const cap = Number(cfg.capacity || 0);
+        numEl.textContent = n + '명';
+        subEl.textContent = (cap ? `정원 ${cap}명 중 ${Math.max(0, cap-n)}자리 남음 · ` : '')
+          + `입금 확인 ${paid}명 / 미확인 ${Math.max(0, n-paid)}명`;
+      }).catch(() => {
+        numEl.textContent = '—';
+        subEl.textContent = '조회 실패. 웹 앱 배포 시 액세스 권한이 "모든 사용자"인지 확인하세요';
+      }).finally(() => { btn.disabled = false; btn.textContent = '현황 조회'; });
+    };
+    $('#refreshCount').onclick = doCount;
+    if(cfg.webhook) doCount();
+  });
+}
+
+/* ============================================================
+   라우팅
+   ============================================================ */
+function route(){
+  const h = location.hash.replace(/^#/, '');
+  if(h.startsWith('d=')){
+    try{
+      renderApplicant(decodeCfg(h.slice(2)));
+      return;
+    }catch(e){
+      $('#app').innerHTML = `<div class="wrap"><div class="card"><h1>링크를 열 수 없습니다</h1><p class="muted">링크가 중간에 잘렸을 수 있습니다. 운영자에게 다시 요청해 주세요.</p></div></div>`;
+      return;
+    }
+  }
+  renderAdmin();
+}
+window.addEventListener('hashchange', route);
+route();
+</script>
+</body>
+</html>

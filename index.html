@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>다음기수 — 기수제 프로그램, 링크 하나로 엽니다</title>
+<meta name="description" content="신청 폼, 입금 확인, 참가자 명단. 매 기수 반복하던 일을 링크 하나로 끝냅니다. 스터디·챌린지·부트캠프 운영자를 위한 도구.">
+<meta property="og:title" content="다음기수 — 기수제 프로그램, 링크 하나로 엽니다">
+<meta property="og:description" content="신청 폼, 입금 확인, 참가자 명단. 매 기수 반복하던 일을 링크 하나로 끝냅니다.">
+<meta property="og:type" content="website">
+<style>
+:root{
+  --ink:#0c0e14; --ink2:#3a4050; --sub:#767e91; --line:#e7e9f0;
+  --bg:#ffffff; --soft:#f6f7fb; --brand:#2f4fe8; --brand-d:#233ec2; --brand-soft:#eef1fe;
+  --ok:#12805c; --warn:#c8412f;
+  --r:16px; --maxw:1080px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;background:var(--bg);color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard","Malgun Gothic",Roboto,sans-serif;
+  line-height:1.65;-webkit-text-size-adjust:100%;-webkit-font-smoothing:antialiased;
+}
+img{max-width:100%}
+a{color:inherit;text-decoration:none}
+.container{max-width:var(--maxw);margin:0 auto;padding:0 22px}
+section{padding:88px 0}
+.eyebrow{display:inline-block;font-size:13px;font-weight:800;letter-spacing:.04em;color:var(--brand);
+  background:var(--brand-soft);border-radius:999px;padding:6px 13px;margin-bottom:18px}
+h1{font-size:clamp(30px,5.4vw,50px);line-height:1.24;letter-spacing:-.025em;margin:0 0 18px;font-weight:800}
+h2{font-size:clamp(24px,3.6vw,34px);line-height:1.3;letter-spacing:-.02em;margin:0 0 14px;font-weight:800}
+h3{font-size:17px;margin:0 0 7px;font-weight:800;letter-spacing:-.01em}
+p.lead{font-size:clamp(16px,2vw,19px);color:var(--ink2);margin:0 0 30px;line-height:1.7}
+.center{text-align:center}
+.sec-head{max-width:640px;margin:0 auto 48px}
+.sec-head.center{text-align:center}
+.sec-head p{color:var(--sub);font-size:16px;margin:0}
+
+/* nav */
+nav{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.86);backdrop-filter:saturate(180%) blur(12px);
+  border-bottom:1px solid var(--line)}
+nav .in{max-width:var(--maxw);margin:0 auto;padding:13px 22px;display:flex;align-items:center;justify-content:space-between}
+.logo{display:flex;align-items:center;gap:9px;font-weight:900;font-size:18px;letter-spacing:-.02em}
+.logo .dot{width:26px;height:26px;border-radius:8px;background:var(--brand);color:#fff;display:grid;place-items:center;
+  font-size:13px;font-weight:900}
+.nav-links{display:flex;gap:26px;font-size:14.5px;color:var(--ink2);font-weight:600}
+@media(max-width:720px){.nav-links{display:none}}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;border:none;cursor:pointer;
+  font-family:inherit;font-weight:800;font-size:15.5px;padding:14px 24px;border-radius:12px;
+  background:var(--brand);color:#fff;transition:transform .12s ease,background .16s ease;letter-spacing:-.01em}
+.btn:hover{background:var(--brand-d)}
+.btn:active{transform:translateY(1px)}
+.btn.sm{padding:10px 17px;font-size:14px;border-radius:10px}
+.btn.ghost{background:#fff;color:var(--ink);border:1.5px solid var(--line)}
+.btn.ghost:hover{background:var(--soft)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+
+/* hero */
+.hero{padding:74px 0 70px;background:
+  radial-gradient(1000px 460px at 12% -8%, #eaeeff 0%, rgba(255,255,255,0) 62%),
+  radial-gradient(760px 400px at 96% 4%, #f2ecff 0%, rgba(255,255,255,0) 58%)}
+.hero-grid{display:grid;grid-template-columns:1.08fr .92fr;gap:56px;align-items:center}
+@media(max-width:900px){.hero-grid{grid-template-columns:1fr;gap:44px}.hero{padding:52px 0 60px}}
+
+/* signup form */
+.signup{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:16px;
+  box-shadow:0 10px 30px rgba(16,24,60,.07)}
+.signup .row{display:flex;gap:9px}
+.signup input{flex:1;min-width:0;padding:14px 15px;border:1.5px solid var(--line);border-radius:11px;
+  font-size:16px;font-family:inherit;color:var(--ink);background:#fff}
+.signup input:focus{outline:none;border-color:var(--brand);box-shadow:0 0 0 3px rgba(47,79,232,.12)}
+.signup .btn{flex:none;padding:14px 22px}
+@media(max-width:520px){.signup .row{flex-direction:column}.signup .btn{width:100%}}
+.microcopy{font-size:12.5px;color:var(--sub);margin:11px 3px 0;line-height:1.55}
+.formmsg{font-size:13.5px;font-weight:700;margin:10px 3px 0;display:none}
+.formmsg.err{color:var(--warn);display:block}
+.formmsg.ok{color:var(--ok);display:block}
+.proof{display:flex;align-items:center;gap:9px;margin-top:20px;font-size:14px;color:var(--ink2);font-weight:600}
+.proof .avs{display:flex}
+.proof .av{width:26px;height:26px;border-radius:50%;border:2px solid #fff;margin-left:-8px;
+  background:linear-gradient(135deg,#8fa2ff,#2f4fe8)}
+.proof .av:first-child{margin-left:0}
+
+/* phone mockup */
+.phone{width:290px;margin:0 auto;background:#0c0e14;border-radius:34px;padding:9px;
+  box-shadow:0 26px 60px rgba(12,14,20,.24)}
+.screen{background:#f5f6f8;border-radius:26px;overflow:hidden}
+.m-cover{background:var(--brand);color:#fff;padding:19px 16px 17px}
+.m-badge{display:inline-block;background:rgba(255,255,255,.2);border-radius:999px;padding:3px 9px;font-size:10px;font-weight:800;margin-bottom:7px}
+.m-cover h4{margin:0 0 4px;font-size:16px;font-weight:800;letter-spacing:-.02em}
+.m-cover p{margin:0;font-size:11.5px;opacity:.88}
+.m-body{padding:11px}
+.m-card{background:#fff;border:1px solid #e5e7eb;border-radius:11px;padding:11px;margin-bottom:8px}
+.m-status .t{display:flex;justify-content:space-between;font-size:11px;font-weight:700}
+.m-status .t b{color:var(--brand)}
+.m-bar{height:5px;background:#eceef2;border-radius:99px;margin-top:7px;overflow:hidden}
+.m-bar i{display:block;height:100%;width:60%;background:var(--brand);border-radius:99px}
+.m-facts{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:#e5e7eb;border:1px solid #e5e7eb;border-radius:11px;overflow:hidden;margin-bottom:8px}
+.m-f{background:#fff;padding:8px 10px}
+.m-f .k{font-size:9px;color:#8b93a3;font-weight:800}
+.m-f .v{font-size:12px;font-weight:800;margin-top:1px}
+.m-input{height:32px;border:1px solid #dcdfe6;border-radius:8px;background:#fff;margin-bottom:7px;
+  display:flex;align-items:center;padding:0 10px;font-size:11px;color:#aeb4c0}
+.m-label{font-size:10px;font-weight:800;color:#4b5261;margin-bottom:4px}
+.m-btn{background:var(--brand);color:#fff;text-align:center;border-radius:9px;padding:10px;font-size:12.5px;font-weight:800}
+
+/* problem flow */
+.flow{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+@media(max-width:820px){.flow{grid-template-columns:1fr 1fr}}
+@media(max-width:480px){.flow{grid-template-columns:1fr}}
+.step{background:#fff;border:1px solid var(--line);border-radius:14px;padding:17px}
+.step .n{font-size:11px;font-weight:900;color:var(--sub);letter-spacing:.06em}
+.step .tool{font-size:15.5px;font-weight:800;margin:5px 0 6px;letter-spacing:-.01em}
+.step .bad{font-size:13px;color:var(--warn);line-height:1.55;font-weight:600}
+.problem{background:var(--soft)}
+.tally{margin-top:34px;background:#fff;border:1px solid var(--line);border-radius:14px;padding:22px;text-align:center}
+.tally b{font-size:26px;color:var(--warn);font-weight:900}
+
+/* features */
+.feats{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:760px){.feats{grid-template-columns:1fr}}
+.feat{border:1px solid var(--line);border-radius:var(--r);padding:26px;background:#fff}
+.feat .ic{width:42px;height:42px;border-radius:12px;background:var(--brand-soft);color:var(--brand);
+  display:grid;place-items:center;font-size:20px;font-weight:900;margin-bottom:15px}
+.feat p{margin:0;color:var(--ink2);font-size:14.5px;line-height:1.65}
+.feat .tag{display:inline-block;font-size:11px;font-weight:800;color:var(--ok);background:#e8f6f0;
+  border-radius:6px;padding:3px 8px;margin-top:12px}
+
+/* pricing */
+.pricing{background:var(--soft)}
+.plans{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;align-items:start}
+@media(max-width:860px){.plans{grid-template-columns:1fr;max-width:420px;margin:0 auto}}
+.plan{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:26px;position:relative}
+.plan.hi{border:2px solid var(--brand);box-shadow:0 14px 36px rgba(47,79,232,.14)}
+.plan .flag{position:absolute;top:-12px;left:26px;background:var(--brand);color:#fff;font-size:11.5px;
+  font-weight:800;border-radius:999px;padding:4px 12px}
+.plan .nm{font-size:15px;font-weight:800;color:var(--ink2)}
+.plan .pr{font-size:30px;font-weight:900;margin:8px 0 2px;letter-spacing:-.03em}
+.plan .pr small{font-size:14px;font-weight:700;color:var(--sub)}
+.plan .note{font-size:12.5px;color:var(--sub);margin-bottom:18px}
+.plan ul{list-style:none;margin:0;padding:0;font-size:14px;color:var(--ink2)}
+.plan li{padding:6px 0 6px 22px;position:relative;line-height:1.55}
+.plan li::before{content:"✓";position:absolute;left:0;color:var(--brand);font-weight:900;font-size:13px}
+.earlybird{margin-top:34px;background:#fff8e6;border:1px solid #f3e2ae;border-radius:14px;padding:18px 20px;
+  font-size:14.5px;line-height:1.65;color:#6b5416}
+.earlybird b{color:#3f3108}
+
+/* final cta */
+.cta{background:var(--ink);color:#fff}
+.cta h2{color:#fff}
+.cta p.lead{color:#a7aec0}
+.cta .box{max-width:520px;margin:0 auto}
+.cta .signup{background:#171a24;border-color:#282d3c;box-shadow:none}
+.cta .signup input{background:#0f1219;border-color:#2c3243;color:#fff}
+.cta .signup input::placeholder{color:#6a7288}
+.cta .signup input:focus{border-color:#5b78ff;box-shadow:0 0 0 3px rgba(91,120,255,.2)}
+.cta .microcopy{color:#7d8496}
+.field{margin-bottom:10px}
+.field label{display:block;font-size:12.5px;font-weight:800;margin-bottom:5px;color:#b9c0d1}
+.field input,.field select{width:100%;padding:13px 14px;border-radius:11px;font-size:15.5px;font-family:inherit;
+  background:#0f1219;border:1.5px solid #2c3243;color:#fff}
+.field select{appearance:none}
+.field input:focus,.field select:focus{outline:none;border-color:#5b78ff;box-shadow:0 0 0 3px rgba(91,120,255,.2)}
+.agree{display:flex;gap:9px;align-items:flex-start;font-size:12.5px;color:#98a0b3;line-height:1.55;margin:12px 2px 14px}
+.agree input{width:16px;height:16px;margin-top:2px;flex:none;accent-color:var(--brand)}
+
+/* faq */
+details{border-bottom:1px solid var(--line);padding:18px 0}
+details summary{cursor:pointer;font-weight:800;font-size:16px;list-style:none;display:flex;justify-content:space-between;gap:14px;letter-spacing:-.01em}
+details summary::-webkit-details-marker{display:none}
+details summary::after{content:"+";color:var(--brand);font-weight:900;font-size:20px;line-height:1}
+details[open] summary::after{content:"−"}
+details p{margin:12px 0 0;color:var(--ink2);font-size:14.5px;line-height:1.7}
+
+footer{border-top:1px solid var(--line);padding:36px 0;font-size:13px;color:var(--sub)}
+footer .in{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+
+/* stats view */
+.statwrap{max-width:520px;margin:70px auto;padding:0 22px}
+.statcard{background:var(--ink);color:#fff;border-radius:20px;padding:34px}
+.statcard .big{font-size:60px;font-weight:900;letter-spacing:-.04em;line-height:1;color:#7ea0ff}
+</style>
+</head>
+<body>
+
+<div id="root">
+
+<nav>
+  <div class="in">
+    <a href="#top" class="logo"><span class="dot">기</span>다음기수</a>
+    <div class="nav-links">
+      <a href="#problem">이런 적 있으시죠</a>
+      <a href="#features">기능</a>
+      <a href="#pricing">가격</a>
+    </div>
+    <a href="#register" class="btn sm">사전 등록</a>
+  </div>
+</nav>
+
+<!-- ───────── HERO ───────── -->
+<header class="hero" id="top">
+  <div class="container hero-grid">
+    <div>
+      <span class="eyebrow">스터디 · 챌린지 · 부트캠프 운영자를 위한</span>
+      <h1>다음 기수,<br>링크 하나로 엽니다</h1>
+      <p class="lead">신청 폼 만들고, 입금자명 대조하고, 명단 옮겨 적고. 매 기수 똑같이 반복하던 일을 링크 하나로 끝냅니다. 신청자는 가입하지 않습니다.</p>
+
+      <form class="signup" id="heroForm">
+        <div class="row">
+          <input type="tel" id="heroPhone" inputmode="numeric" placeholder="010-0000-0000" autocomplete="tel">
+          <button type="submit" class="btn" id="heroBtn">사전 등록</button>
+        </div>
+        <div class="formmsg" id="heroMsg"></div>
+        <p class="microcopy">출시되면 가장 먼저 문자로 알려드립니다. 광고 문자는 보내지 않고, 출시 안내 외의 용도로 쓰지 않습니다.</p>
+      </form>
+
+      <div class="proof" id="proof" style="display:none">
+        <span class="avs"><i class="av"></i><i class="av"></i><i class="av"></i></span>
+        <span id="proofText"></span>
+      </div>
+    </div>
+
+    <div class="phone">
+      <div class="screen">
+        <div class="m-cover">
+          <span class="m-badge">3기 모집</span>
+          <h4>새벽 글쓰기 챌린지</h4>
+          <p>4주 동안 매일 아침 6시, 같이 씁니다</p>
+        </div>
+        <div class="m-body">
+          <div class="m-card m-status">
+            <div class="t"><span>지금까지 <b>12명</b>이 신청했습니다</span><span style="color:#767e91">8자리 남음</span></div>
+            <div class="m-bar"><i></i></div>
+          </div>
+          <div class="m-facts">
+            <div class="m-f"><div class="k">진행 기간</div><div class="v">8월 4일~</div></div>
+            <div class="m-f"><div class="k">참가비</div><div class="v">150,000원</div></div>
+          </div>
+          <div class="m-card">
+            <div class="m-label">이름 *</div>
+            <div class="m-input">홍길동</div>
+            <div class="m-label">연락처 *</div>
+            <div class="m-input">010-0000-0000</div>
+            <div class="m-btn">신청 접수하기</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ───────── PROBLEM ───────── -->
+<section class="problem" id="problem">
+  <div class="container">
+    <div class="sec-head center">
+      <h2>지금은 아마 이렇게 하고 계실 겁니다</h2>
+      <p>도구가 부족한 게 아닙니다. 이미 충분히 많고, 그것들이 서로 이어지지 않는 게 문제입니다.</p>
+    </div>
+    <div class="flow">
+      <div class="step"><div class="n">STEP 1 · 모집</div><div class="tool">인스타 · 뉴스레터</div><div class="bad">누가 관심을 보였는지 추적이 안 됩니다</div></div>
+      <div class="step"><div class="n">STEP 2 · 신청</div><div class="tool">구글폼</div><div class="bad">신청과 결제가 따로 놀아 노쇼가 생깁니다</div></div>
+      <div class="step"><div class="n">STEP 3 · 결제</div><div class="tool">계좌이체</div><div class="bad">입금자명이 회사명·가족 이름으로 찍혀 매번 못 찾습니다</div></div>
+      <div class="step"><div class="n">STEP 4 · 명단</div><div class="tool">스프레드시트</div><div class="bad">구글폼·입금내역·단톡방 명단이 3중으로 어긋납니다</div></div>
+      <div class="step"><div class="n">STEP 5 · 운영</div><div class="tool">카톡 단톡방</div><div class="bad">공지가 대화에 묻히고 개별 안내는 일일이 복붙합니다</div></div>
+      <div class="step"><div class="n">STEP 6 · 다음 기수</div><div class="tool">처음부터 다시</div><div class="bad">폼도 안내문도 명단도 전부 새로 만듭니다</div></div>
+    </div>
+    <div class="tally">
+      기수마다 여기에 쓰는 시간, 대략 <b>4시간</b><br>
+      <span style="color:var(--sub);font-size:14px">그리고 거의 매번 한두 건은 어긋납니다</span>
+    </div>
+  </div>
+</section>
+
+<!-- ───────── FEATURES ───────── -->
+<section id="features">
+  <div class="container">
+    <div class="sec-head center">
+      <h2>끊긴 지점만 잇습니다</h2>
+      <p>카톡도 노션도 그대로 쓰세요. 대체하려 들지 않습니다. 그 사이에서 매번 새는 것만 막습니다.</p>
+    </div>
+    <div class="feats">
+      <div class="feat">
+        <div class="ic">1</div>
+        <h3>링크 하나로 배포</h3>
+        <p>프로그램 정보를 채우면 신청 페이지 링크가 나옵니다. 카톡·인스타에 그대로 올리면 끝이고, 신청자는 회원가입도 앱 설치도 하지 않습니다.</p>
+        <span class="tag">신청 이탈 최소화</span>
+      </div>
+      <div class="feat">
+        <div class="ic">2</div>
+        <h3>입금자명을 먼저 맞춥니다</h3>
+        <p>접수 완료 화면에서 금액·계좌와 함께 "입금자명을 홍길동으로 해주세요"를 강조합니다. 대조 사고의 대부분은 여기서 미리 사라집니다.</p>
+        <span class="tag">대조 시간 단축</span>
+      </div>
+      <div class="feat">
+        <div class="ic">3</div>
+        <h3>신청 현황이 실시간으로</h3>
+        <p>현재 신청자 수, 남은 자리, 미입금 인원이 한 화면에 보입니다. 정원이 차면 자동으로 대기 신청으로 전환됩니다.</p>
+        <span class="tag">정원 관리 자동</span>
+      </div>
+      <div class="feat">
+        <div class="ic">4</div>
+        <h3>다음 기수는 복제 한 번</h3>
+        <p>지난 기수의 설정과 안내문을 그대로 가져옵니다. 날짜만 고치면 2기가 열립니다. 참가자 명단도 함께 넘어갑니다.</p>
+        <span class="tag">4시간 → 10분</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ───────── PRICING ───────── -->
+<section class="pricing" id="pricing">
+  <div class="container">
+    <div class="sec-head center">
+      <h2>첫 기수는 끝까지 무료입니다</h2>
+      <p>써보고 판단하시라는 뜻입니다. 2기를 여실 때부터 결제하시면 됩니다.</p>
+    </div>
+    <div class="plans">
+      <div class="plan">
+        <div class="nm">Free</div>
+        <div class="pr">0원</div>
+        <div class="note">첫 기수를 끝까지</div>
+        <ul>
+          <li>기수 1개</li>
+          <li>신청자 50명까지</li>
+          <li>신청 페이지 · 신청 폼</li>
+          <li>참가자 명단</li>
+        </ul>
+      </div>
+      <div class="plan hi">
+        <div class="flag">가장 많이 쓰실 플랜</div>
+        <div class="nm">Standard</div>
+        <div class="pr">39,000<small>원 / 월</small></div>
+        <div class="note">연 결제 시 2개월 무료</div>
+        <ul>
+          <li>기수 무제한</li>
+          <li>다음 기수 복제</li>
+          <li>결제 연동 · 입금 대조</li>
+          <li>알림톡 월 300건</li>
+          <li>신청 현황 대시보드</li>
+        </ul>
+      </div>
+      <div class="plan">
+        <div class="nm">Pro</div>
+        <div class="pr">89,000<small>원 / 월</small></div>
+        <div class="note">여러 프로그램을 동시에</div>
+        <ul>
+          <li>Standard 전부 포함</li>
+          <li>알림톡 월 1,500건</li>
+          <li>운영자 3인</li>
+          <li>수료생 재모집 자동 안내</li>
+          <li>참가자 데이터 내보내기</li>
+        </ul>
+      </div>
+    </div>
+    <div class="earlybird">
+      <b>사전 등록하신 분께</b> — 정식 출시 후 <b>Standard 3개월 무료</b>로 시작하실 수 있게 해드립니다. 만들어가는 동안 의견 주시는 분께는 첫 1년 반값으로 고정해 드립니다.
+    </div>
+  </div>
+</section>
+
+<!-- ───────── FINAL CTA ───────── -->
+<section class="cta" id="register">
+  <div class="container box center">
+    <h2>출시되면 가장 먼저 알려드립니다</h2>
+    <p class="lead">연락처만 남겨주세요. 준비되는 대로 문자 한 통 드리겠습니다.</p>
+
+    <form class="signup" id="mainForm" style="text-align:left">
+      <div class="field">
+        <label for="mName">이름</label>
+        <input type="text" id="mName" placeholder="홍길동" autocomplete="name">
+      </div>
+      <div class="field">
+        <label for="mPhone">전화번호</label>
+        <input type="tel" id="mPhone" inputmode="numeric" placeholder="010-0000-0000" autocomplete="tel">
+      </div>
+      <div class="field">
+        <label for="mKind">지금 운영 중이거나 준비 중인 프로그램</label>
+        <select id="mKind">
+          <option value="">선택 안 함</option>
+          <option>유료 스터디</option>
+          <option>챌린지 · 습관 프로그램</option>
+          <option>부트캠프 · 강의</option>
+          <option>그룹 코칭 · 컨설팅</option>
+          <option>독서모임 · 커뮤니티</option>
+          <option>아직 준비 중</option>
+          <option>기타</option>
+        </select>
+      </div>
+      <label class="agree">
+        <input type="checkbox" id="mAgree">
+        <span>출시 안내를 받기 위해 이름과 연락처를 수집하는 데 동의합니다. 출시 안내 외의 목적으로 사용하지 않으며, 원하실 때 즉시 삭제해 드립니다.</span>
+      </label>
+      <button type="submit" class="btn" id="mainBtn" style="width:100%">사전 등록하고 소식 받기</button>
+      <div class="formmsg" id="mainMsg"></div>
+    </form>
+  </div>
+</section>
+
+<footer>
+  <div class="container in">
+    <div><b style="color:var(--ink)">다음기수</b> · 기수제 프로그램 운영 도구</div>
+    <div>문의 : <a href="mailto:yeom34759@gmail.com" style="color:var(--brand);font-weight:700">yeom34759@gmail.com</a></div>
+  </div>
+</footer>
+
+</div>
+
+<script>
+/* ============================================================
+   다음기수 — 사전 등록 랜딩
+   아래 WEBHOOK 한 줄만 본인 Apps Script 배포 URL로 바꾸면 작동합니다.
+   ============================================================ */
+const WEBHOOK = 'https://script.google.com/macros/s/AKfycbz2OoueBliLcBroZ5UTrIX_64eXV0D5R59SQQ_JdD55iSsntj0m7ymo-FEMQK-poTuN/exec';
+
+const $ = s => document.querySelector(s);
+
+/* 전화번호 자동 하이픈 */
+function formatPhone(v){
+  const d = v.replace(/\D/g,'').slice(0,11);
+  if(d.length < 4) return d;
+  if(d.length < 8) return d.slice(0,3) + '-' + d.slice(3);
+  return d.slice(0,3) + '-' + d.slice(3,7) + '-' + d.slice(7);
+}
+function validPhone(v){
+  const d = v.replace(/\D/g,'');
+  return /^01[016789]\d{7,8}$/.test(d);
+}
+['heroPhone','mPhone'].forEach(id => {
+  const el = document.getElementById(id);
+  if(el) el.addEventListener('input', e => { e.target.value = formatPhone(e.target.value); });
+});
+
+/* JSONP — Apps Script 응답을 브라우저에서 읽기 위한 방식 */
+function jsonp(url, params, timeout=8000){
+  return new Promise((resolve, reject) => {
+    const cb = 'cb_' + Math.random().toString(36).slice(2);
+    const s = document.createElement('script');
+    const t = setTimeout(() => { cleanup(); reject(new Error('timeout')); }, timeout);
+    function cleanup(){ clearTimeout(t); try{ delete window[cb]; }catch(_){ window[cb]=undefined; } s.remove(); }
+    window[cb] = d => { cleanup(); resolve(d); };
+    s.onerror = () => { cleanup(); reject(new Error('network')); };
+    s.src = url + (url.includes('?')?'&':'?') + new URLSearchParams(Object.assign({}, params, {callback:cb}));
+    document.body.appendChild(s);
+  });
+}
+
+async function submitLead(data, btn, msg, okText){
+  btn.disabled = true;
+  const original = btn.textContent;
+  btn.textContent = '등록 중...';
+  msg.className = 'formmsg';
+
+  const payload = Object.assign({ type:'waitlist', submittedAt:new Date().toISOString() }, data);
+
+  try{
+    if(WEBHOOK){
+      await fetch(WEBHOOK, {
+        method:'POST', mode:'no-cors',
+        headers:{'Content-Type':'text/plain;charset=utf-8'},
+        body: JSON.stringify(payload)
+      });
+    }
+  }catch(_){ /* no-cors 는 응답을 읽지 못한다. 전송 자체는 진행된다 */ }
+
+  msg.textContent = okText;
+  msg.className = 'formmsg ok';
+  btn.textContent = '등록 완료';
+  setTimeout(() => { btn.disabled = false; btn.textContent = original; }, 2600);
+  loadProof();
+}
+
+/* 히어로 폼 — 전화번호만 */
+$('#heroForm').addEventListener('submit', e => {
+  e.preventDefault();
+  const phone = $('#heroPhone').value.trim();
+  const msg = $('#heroMsg');
+  if(!validPhone(phone)){
+    msg.textContent = '휴대폰 번호를 정확히 입력해 주세요.';
+    msg.className = 'formmsg err';
+    $('#heroPhone').focus();
+    return;
+  }
+  submitLead({ name:'', phone, kind:'', from:'hero' }, $('#heroBtn'), msg,
+    '등록되었습니다. 출시되면 이 번호로 가장 먼저 알려드리겠습니다.');
+});
+
+/* 하단 폼 — 이름 + 전화 + 종류 */
+$('#mainForm').addEventListener('submit', e => {
+  e.preventDefault();
+  const name = $('#mName').value.trim();
+  const phone = $('#mPhone').value.trim();
+  const kind = $('#mKind').value;
+  const msg = $('#mainMsg');
+
+  if(!name){ msg.textContent = '이름을 입력해 주세요.'; msg.className='formmsg err'; $('#mName').focus(); return; }
+  if(!validPhone(phone)){ msg.textContent = '휴대폰 번호를 정확히 입력해 주세요.'; msg.className='formmsg err'; $('#mPhone').focus(); return; }
+  if(!$('#mAgree').checked){ msg.textContent = '개인정보 수집에 동의해 주세요.'; msg.className='formmsg err'; return; }
+
+  submitLead({ name, phone, kind, from:'main' }, $('#mainBtn'), msg,
+    name + '님, 등록되었습니다. 출시되면 문자로 안내드리겠습니다.');
+});
+
+/* 사전 등록자 수 — 일정 인원을 넘겨야 노출한다 */
+const MIN_PROOF = 10;
+function loadProof(){
+  if(!WEBHOOK) return;
+  jsonp(WEBHOOK, { action:'count', type:'waitlist' }).then(r => {
+    const n = Number((r && r.count) || 0);
+    if(n < MIN_PROOF) return;
+    $('#proofText').textContent = `이미 ${n}명의 운영자가 사전 등록했습니다`;
+    $('#proof').style.display = 'flex';
+  }).catch(()=>{});
+}
+loadProof();
+
+/* #stats — 운영자용 사전 등록 현황 */
+function renderStats(){
+  document.getElementById('root').innerHTML = `
+    <div class="statwrap">
+      <div class="statcard">
+        <div style="font-size:13px;color:#8c96ad;font-weight:800;letter-spacing:.05em">다음기수 · 사전 등록 현황</div>
+        <div class="big" id="sN" style="margin:14px 0 6px">—</div>
+        <div style="color:#9aa3b8;font-size:14px" id="sSub">불러오는 중...</div>
+        <button class="btn" id="sBtn" style="width:100%;margin-top:22px">새로고침</button>
+        <p style="font-size:12.5px;margin:16px 0 0;color:#6a7288;line-height:1.6">
+          이 화면은 주소 끝에 <b style="color:#b9c0d1">#stats</b> 를 붙였을 때만 보입니다. 방문자에게는 노출되지 않습니다.
+        </p>
+      </div>
+    </div>`;
+  const go = () => {
+    const nEl = document.getElementById('sN'), sEl = document.getElementById('sSub'), b = document.getElementById('sBtn');
+    if(!WEBHOOK){ nEl.textContent='—'; sEl.textContent='WEBHOOK 값을 먼저 넣어주세요'; return; }
+    b.disabled = true; b.textContent = '조회 중';
+    jsonp(WEBHOOK, { action:'count', type:'waitlist' }).then(r => {
+      nEl.textContent = Number((r && r.count) || 0) + '명';
+      sEl.textContent = '마지막 조회 ' + new Date().toLocaleString('ko-KR');
+    }).catch(() => {
+      nEl.textContent = '—';
+      sEl.textContent = '조회 실패. 배포 시 액세스 권한이 "모든 사용자"인지 확인하세요';
+    }).finally(() => { b.disabled=false; b.textContent='새로고침'; });
+  };
+  document.getElementById('sBtn').onclick = go;
+  go();
+}
+if(location.hash === '#stats') renderStats();
+window.addEventListener('hashchange', () => { if(location.hash === '#stats') renderStats(); });
+</script>
+</body>
+</html>
